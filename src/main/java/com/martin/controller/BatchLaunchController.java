@@ -37,7 +37,6 @@ public class BatchLaunchController {
     @PostMapping("/salvage")
     public ResponseEntity<ResponseMessage> launchBatch(@RequestBody LaunchParms launchParams) throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 
-
         String inputFile = launchParams.getInputFile();
         String outputDir = launchParams.getOutputDir();
 
@@ -50,9 +49,13 @@ public class BatchLaunchController {
         ExitStatus exit = jobExecution.getExitStatus();
 
         if(!exit.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
-            return new ResponseEntity<>(new ResponseMessage(exit.getExitCode()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ResponseMessage(exit.getExitCode(), exit.getExitCode()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.ok().build();
+        Integer lines;
+        if((lines = (Integer)jobExecution.getExecutionContext().get("line.count")) != null) {
+            return new ResponseEntity<>(new ResponseMessage(exit.getExitCode(), lines + " lines"), HttpStatus.OK);
+        }
 
+        return new ResponseEntity<>(new ResponseMessage(exit.getExitCode(), "Unknown lines"), HttpStatus.OK);
     }
 }

@@ -12,12 +12,18 @@ package com.martin.controller;
 
 public class ResponseMessage {
     private final String exitCode;
+    private final String message;
 
     public String getExitCode() {
         return exitCode;
     }
 
-    public ResponseMessage(String exitCode) {
+    public ResponseMessage(String exitCode, String message) {
         this.exitCode=exitCode;
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

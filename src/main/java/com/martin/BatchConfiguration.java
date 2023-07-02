@@ -2,6 +2,7 @@ package com.martin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ChunkListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -30,13 +31,6 @@ public class BatchConfiguration {
 	public JobBuilderFactory jobBuilderFactory;
 	@Autowired
 	public StepBuilderFactory stepBuilderFactory;
-
-	@Value("${output.dir:/tmp}")
-	private String location;
-	@Value("${input.dir:/home/martin/test-workspace/parallel-file-processor/src/main/resources}")
-	private String inputLocation;
-	@Value("${filename.pattern:*.csv}" )
-	private String namePattern;
 
 	private static final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
 
@@ -71,11 +65,7 @@ public class BatchConfiguration {
 
 	@Bean
 	public FileDeletingTasklet fileDeletingTasklet() {
-		FileDeletingTasklet tasklet = new FileDeletingTasklet();
-
-		tasklet.setDirectoryResource(location, namePattern);
-
-		return tasklet;
+		return new FileDeletingTasklet();
 	}
 
 @Bean
@@ -88,7 +78,12 @@ public class BatchConfiguration {
 				.processor(processor())
 				.writer(personItemWriter("header", null))
 				.listener(headerLineCallback())
+				.listener(linecounter())
 				.build();
+	}
+
+	private ChunkListener linecounter() {
+		return new LineCounter();
 	}
 
 	@Bean
@@ -122,7 +117,7 @@ public class BatchConfiguration {
 		return new FlatFileItemWriterBuilder<Person>()
 				.name("personItemWriter")
 				.resource(new FileSystemResource(outputFile))
-				.append(true)
+				.append(false)
 				.headerCallback(outputHeaderCallback(header))
 				.lineAggregator(new DelimitedLineAggregator<Person>() {
 					/*
