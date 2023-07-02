@@ -11,6 +11,7 @@
 package com.martin;
 
 import org.springframework.batch.core.ChunkListener;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 
 public class LineCounter implements ChunkListener {
@@ -21,9 +22,9 @@ public class LineCounter implements ChunkListener {
 
     @Override
     public void afterChunk(ChunkContext context) {
-        int count = context.getStepContext().getStepExecution().getReadCount();
-        context.getStepContext().getStepExecution().getJobExecution().getExecutionContext().put("line.count", count);
-
+        StepExecution se  = context.getStepContext().getStepExecution();
+        int count = se.getReadCount();
+        se.getJobExecution().getExecutionContext().put("line.count", count);
     }
 
     @Override

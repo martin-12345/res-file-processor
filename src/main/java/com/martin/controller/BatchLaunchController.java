@@ -49,13 +49,13 @@ public class BatchLaunchController {
         ExitStatus exit = jobExecution.getExitStatus();
 
         if(!exit.getExitCode().equals(ExitStatus.COMPLETED.getExitCode())){
-            return new ResponseEntity<>(new ResponseMessage(exit.getExitCode(), exit.getExitCode()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new ResponseMessage(exit.getExitCode()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Integer lines;
         if((lines = (Integer)jobExecution.getExecutionContext().get("line.count")) != null) {
-            return new ResponseEntity<>(new ResponseMessage(exit.getExitCode(), lines + " lines"), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage(exit.getExitCode(), lines), HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(new ResponseMessage(exit.getExitCode(), "Unknown lines"), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage(exit.getExitCode()), HttpStatus.OK);
     }
 }
